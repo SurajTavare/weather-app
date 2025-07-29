@@ -39,7 +39,7 @@ class hrsForcastDisply extends StatelessWidget {
               SizedBox(height: 9), // spacing between icon and text
 
               Text(
-                temp, //temperature
+                "${(double.parse(temp)- 273.15).toStringAsFixed(2)} °C", //temperature
                 style: TextStyle(),
               ),
             ],
