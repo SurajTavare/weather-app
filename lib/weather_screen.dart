@@ -51,7 +51,6 @@ class _weatherScreenState extends State<weatherScreen> {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 25,
-              color: Colors.white,
             ),
           ),
         ),
@@ -116,7 +115,6 @@ class _weatherScreenState extends State<weatherScreen> {
                                         currentWeather == 'Rain'
                                     ? Icons.cloud
                                     : Icons.sunny,
-                                color: Colors.white,
                                 size: 60,
                               ),
                               SizedBox(height: 16),
@@ -124,7 +122,6 @@ class _weatherScreenState extends State<weatherScreen> {
                                 "$currentWeather",
                                 style: TextStyle(
                                   fontSize: 25,
-                                  color: Colors.white,
                                 ),
                               ),
                             ],
@@ -143,7 +140,6 @@ class _weatherScreenState extends State<weatherScreen> {
                   style: TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
                   ),
                 ),
 
@@ -196,7 +192,6 @@ class _weatherScreenState extends State<weatherScreen> {
                   style: TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
                   ),
                 ),
                 SizedBox(height: 15),

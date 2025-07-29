@@ -27,7 +27,6 @@ class hrsForcastDisply extends StatelessWidget {
                 time, // time for the forecast
                 style: TextStyle(
                   fontSize: 20,
-                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
                 maxLines: 1,
@@ -36,13 +35,12 @@ class hrsForcastDisply extends StatelessWidget {
 
               SizedBox(height: 8), // spacing between icon and text
               Icon(icon,
-                  color: Colors.white,
                   size: 32),
               SizedBox(height: 9), // spacing between icon and text
 
               Text(
                 temp, //temperature
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(),
               ),
             ],
           ),
