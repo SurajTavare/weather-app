@@ -61,7 +61,6 @@ class _weatherScreenState extends State<weatherScreen> {
               setState(() {
               weather = getWeather();
               });
-              print("refresh");
             },
             icon: Icon(Icons.refresh),
           ),
