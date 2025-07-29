@@ -77,8 +77,7 @@ class _weatherScreenState extends State<weatherScreen> {
           final data = snapshot.data!;
           final currenTemp = data['list'][0]['main']['temp'];
           final temp =  currenTemp- 273.15;
-          print(currenTemp);
-          print(currenTemp.runtimeType);
+
           final currentWeather = data['list'][0]['weather'][0]['main'];
           final humidity = data['list'][0]['main']['humidity'];
           final windSpeed = data['list'][0]['wind']['speed'];
