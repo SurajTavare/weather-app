@@ -18,6 +18,30 @@ class _weatherScreenState extends State<weatherScreen> {
   TextEditingController cityController = TextEditingController();
   late Future<Map<String, dynamic>> weather;
 
+  void validation( String err) {
+    if (err.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          // width: 330,
+          backgroundColor: Colors.red,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          content: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              SizedBox(width: 10),
+              Icon(Icons.warning_rounded),
+              SizedBox(width: 15),
+              Text(err, style: TextStyle(fontSize: 15)),
+            ],
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -64,6 +88,7 @@ class _weatherScreenState extends State<weatherScreen> {
             if (WProvider.weather == null) {
               return Center(child: CircularProgressIndicator.adaptive());
             }
+
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator.adaptive());
             }
@@ -82,7 +107,6 @@ class _weatherScreenState extends State<weatherScreen> {
               }
               dailyData[dayKey]!.add(entry);
             }
-
             List<Map<String, dynamic>> fiveDayForecast = [];
             dailyData.forEach((day, entries) {
               if (fiveDayForecast.length < 5) {
@@ -109,11 +133,13 @@ class _weatherScreenState extends State<weatherScreen> {
                         FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
                       ],
                       onSubmitted: (value) {
+                        validation(WProvider.errorMsg, );
                           WProvider.getSearchCityWeather(city: value.trim());
                         cityController.clear();
                       },
                       decoration: InputDecoration(
                         suffixIcon: IconButton(onPressed: (){
+                          validation(WProvider.errorMsg);
                           WProvider.getSearchCityWeather(city: cityController.text.trim());
                           cityController.clear();
                         }, icon:Icon(Icons.search, size: 25)),
