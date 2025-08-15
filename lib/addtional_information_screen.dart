@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class AdditionInfo extends StatelessWidget {
@@ -15,23 +14,29 @@ class AdditionInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(icon, size: 45),
-        SizedBox(height: 15),
-        Text(label,
-          style: TextStyle(
-            fontSize: 20,
+    return Card(
+      child: Container(
+        width: 100,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(width: 1, color: Colors.green),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              Icon(icon, size: 30),
+              SizedBox(height: 15),
+              Text(label, style: TextStyle(fontSize: 15)),
+              SizedBox(height: 15),
+              Text(
+                value,
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
         ),
-        SizedBox(height: 15),
-        Text(value,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
