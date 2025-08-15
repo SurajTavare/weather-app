@@ -1,14 +1,10 @@
-import 'dart:convert';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:weather_app/secrets.dart';
+import 'package:provider/provider.dart';
+import 'package:weather_app/provider.dart';
 import "addtional_information_screen.dart";
 import 'day_forcasting_screen.dart';
 import 'hrs_forecast_disply_screen.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class weatherScreen extends StatefulWidget {
@@ -19,115 +15,30 @@ class weatherScreen extends StatefulWidget {
 }
 
 class _weatherScreenState extends State<weatherScreen> {
-
-
   TextEditingController cityController = TextEditingController();
   late Future<Map<String, dynamic>> weather;
-  late List<Placemark> cities;
-  String loaction = "";
-  double lat = 0;
-  double lon = 0;
-  String cityName = "";
 
   @override
   void initState() {
     super.initState();
-    getLoaction();
-    weather=getCurrentCityWeather(latt: lat, lonn: lon);
-
-  }
-
-  Future<bool> getLoaction() async {
-    LocationPermission permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
-      loaction = "permission denied";
-      return false;
-    } else {
-      Position position = await Geolocator.getCurrentPosition();
-      lat = position.latitude;
-      lon = position.longitude;
-      cities = await placemarkFromCoordinates(lat, lon);
-      setState(() {
-        cityName = cities[0].locality!;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<weatherProvider>();
+      provider.getLoaction().then((_) {
+        setState(() {
+          weather = provider.getCurrentCityWeather(
+            latt: provider.lat,
+            lonn: provider.lon,
+          );
+        });
       });
-      print(cities);
-      return true;
-    }
+    });
   }
 
-  Future<Map<String, dynamic>> getCurrentCityWeather({
-    required double latt,
-    required double lonn,
-  }) async {
-    print("getCurrentCityWeather");
-    try {
-      final result = await http.get(
-        Uri.parse(
-          "http://api.openweathermap.org/data/2.5/forecast?lat=$lat&lon=$lon&appid=$openWeatherApiKey",
-        ),
-      );
-      final data = jsonDecode(result.body);
-      if (data['cod'] != '200') {
-        throw ("an unexpected error occur");
-      }
-      return data;
-    } catch (e) {
-      throw (e.toString());
-    }
-  }
 
-  Future<Map<String, dynamic>> refreshWeather({
-    required double latt,
-    required double lonn,
-  }) async {
-    print("refesh");
-    try {
-      cities = await placemarkFromCoordinates(lat, lon);
-      setState(() {
-        cityName = cities[0].locality!;
-      });
-      final result = await http.get(
-        Uri.parse(
-          "http://api.openweathermap.org/data/2.5/forecast?lat=$lat&lon=$lon&appid=$openWeatherApiKey",
-        ),
-      );
-      final data = jsonDecode(result.body);
-
-      if (data['cod'] != '200') {
-        throw ("an unexpected error occur");
-      }
-      return data;
-    } catch (e) {
-      throw (e.toString());
-    }
-  }
-
-  Future<Map<String, dynamic>> getSearchCityWeather({
-    required String city,
-  }) async {
-    try {
-      setState(() {
-        cityName = city;
-      });
-      final result = await http.get(
-        Uri.parse(
-          "http://api.openweathermap.org/data/2.5/forecast?q=$city&appid=$openWeatherApiKey",
-        ),
-      );
-      final data = jsonDecode(result.body);
-      if (data['cod'] != '200') {
-        throw ("an unexpected error occur");
-      }
-      print(data);
-      return data;
-    } catch (e) {
-      throw (e.toString());
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-
+    final WProvider = context.watch<weatherProvider>();
     return Scaffold(
       appBar: AppBar(
         title: Center(
@@ -139,9 +50,7 @@ class _weatherScreenState extends State<weatherScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              setState(() {
-                weather = refreshWeather(latt: lat, lonn:lon);
-              });
+                WProvider.refreshWeather(latt: WProvider.lat, lonn:WProvider.lon);
             },
             icon: Icon(Icons.refresh),
           ),
@@ -150,8 +59,11 @@ class _weatherScreenState extends State<weatherScreen> {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: FutureBuilder(
-          future: weather,
+          future: WProvider.weather,
           builder: (context, snapshot) {
+            if (WProvider.weather == null) {
+              return Center(child: CircularProgressIndicator.adaptive());
+            }
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator.adaptive());
             }
@@ -197,13 +109,14 @@ class _weatherScreenState extends State<weatherScreen> {
                         FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
                       ],
                       onSubmitted: (value) {
-                        setState(() {
-                          weather = getSearchCityWeather(city: value.trim());
-                        });
+                          WProvider.getSearchCityWeather(city: value.trim());
                         cityController.clear();
                       },
                       decoration: InputDecoration(
-                        suffixIcon: Icon(Icons.search, size: 25),
+                        suffixIcon: IconButton(onPressed: (){
+                          WProvider.getSearchCityWeather(city: cityController.text.trim());
+                          cityController.clear();
+                        }, icon:Icon(Icons.search, size: 25)),
                         hintStyle: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -217,7 +130,7 @@ class _weatherScreenState extends State<weatherScreen> {
                     SizedBox(height: 15),
                     Center(
                       child: Text(
-                        cityName.toUpperCase(),
+                        WProvider.cityName.toUpperCase(),
                         style: TextStyle(
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
@@ -236,7 +149,7 @@ class _weatherScreenState extends State<weatherScreen> {
                           final time = DateTime.parse(dayData['dt_txt']);
                           final dayName = DateFormat.EEEE().format(
                             time,
-                          ); // "Monday", etc.
+                          );
                           final temp = (dayData['main']['temp'] - 273.15);
                           final weather = dayData['weather'][0]['main'];
                           return DaysForcasting(
